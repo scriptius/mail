@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<project name="php3" default="build" basedir="/home/domains/source/mayarossa">
+
+    <target name="vars">
+        <php returnProperty="datetime" function="date">
+            <param value="Y-m-d-H-i-s" />
+        </php>
+        <resolvepath propertyName="target.dir" path="/home/domains/mayarossa/${datetime}" />
+        <property name="domain" value="mayarossa.ru"/>
+        <echo msg="this is target.dir - ${target.dir}" />
+        <echo msg="this is project.basedir - ${project.basedir}" />
+    </target>
+
+    <target name="copy">
+        <copy todir="${target.dir}" overwrite="true">
+            <fileset dir="${project.basedir}" >
+                <include name="**" />
+            </fileset>
+        </copy>
+    </target>
+
+    <target name="config">
+        <copy file="${project.basedir}/build/config/params.php" tofile="${target.dir}/config/params.php"
+              overwrite="true">
+            <filterchain>
+                <replacetokens begintoken="{{" endtoken="}}">
+                    <token key="domain" value="${domain}"/>
+                </replacetokens>
+            </filterchain>
+        </copy>
+
+        <copy file="${project.basedir}/build/config/db.php" tofile="${target.dir}/config/db.php"  overwrite="true">
+            <filterchain>
+                <replacetokens begintoken="{{" endtoken="}}">
+                    <token key="db.username" value="${db.username}"/>
+                    <token key="db.password" value="${db.password}"/>
+                </replacetokens>
+            </filterchain>
+        </copy>
+    </target>
+
+    <target name="composer">
+        <exec command="composer install" dir="${target.dir}" checkreturn="true" returnProperty="exec.return" outputProperty="exec.output"/>
+    </target>
+
+    <target name="symlink">
+        <symlink target="${target.dir}" link="/home/domains/mayarossa/current" overwrite="true" />
+    </target>
+
+    <target name="rightsAndFolders">
+        <exec command="sudo chmod 777 /home/domains/mayarossa/current/web/assets/" dir="${target.dir}" checkreturn="true" returnProperty="exec.return" outputProperty="exec.output"/>
+        <exec command="sudo chown -R www-data:www-data /home/domains/mayarossa/current/runtime" dir="${target.dir}" checkreturn="true" returnProperty="exec.return" outputProperty="exec.output"/>
+        <exec command="sudo chmod 700 /home/domains/mayarossa/current/runtime" dir="${target.dir}" checkreturn="true" returnProperty="exec.return" outputProperty="exec.output"/>
+        <exec command="sudo service php5-fpm reload" dir="${target.dir}" checkreturn="true" returnProperty="exec.return" outputProperty="exec.output"/>
+
+    </target>
+
+    <target name="migration">
+        <exec command=" php yii migrate --interactive=0" dir="${target.dir}" checkreturn="true" returnProperty="exec.return" outputProperty="exec.output"/>
+    </target>
+
+    <target name="tests">
+        <exec command="php /home/domains/mayarossa/current/vendor/bin/phpunit /home/domains/mayarossa/current/tests/phpunit/UserTest.php" dir="${target.dir}" checkreturn="true" returnProperty="exec.return" outputProperty="exec.output"/>
+    </target>
+
+    <target name="build" depends="vars, copy, config, composer, symlink, rightsAndFolders, migration, tests" />
+</project>
