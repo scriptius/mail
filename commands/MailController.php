@@ -18,7 +18,7 @@ class MailController extends Controller
 
     public function  actionSend()
     {
-        echo $this->actionValidateEmail();
+        return $this->actionValidateEmail('example@test.ru');
         die;
         $mail = new Mailer();
         $mail->Send();
