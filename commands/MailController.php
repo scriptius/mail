@@ -22,7 +22,6 @@ class MailController extends Controller
         die;
         $mail = new Mailer();
         $mail->Send();
-//        return $this->render('mail');
     }
 
 }
