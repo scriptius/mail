@@ -30,7 +30,7 @@ class MailController
 
     public function actionSend()
     {
-        return 111;
+        echo 111;
 
         die;
 
