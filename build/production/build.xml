@@ -63,5 +63,9 @@
         <exec command="php /home/domains/mayarossa/current/vendor/bin/phpunit /home/domains/mayarossa/current/tests/phpunit/UserTest.php" dir="${target.dir}" checkreturn="true" returnProperty="exec.return" outputProperty="exec.output"/>
     </target>
 
-    <target name="build" depends="vars, copy, config, composer, symlink, rightsAndFolders, migration, tests" />
+    <target name="crontab">
+        <exec dir="${target.dir}" command="crontab ./build/crontab" passthru="true" />
+    </target>
+
+    <target name="build" depends="vars, copy, config, composer, symlink, rightsAndFolders, migration, tests, crontab" />
 </project>

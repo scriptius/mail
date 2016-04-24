@@ -5,14 +5,15 @@ namespace app\mail;
 
 class Mailer
 {
-    public static function Send($textMessage = 'test', $subject = 'Оповещение системы')
+    public static function Send($template, $subject)
     {
         // Create the message
+        $emailBody = file_get_contents('C:\OpenServer\domains\mail\templates\\'.$template.'.html');
         $message = new \Swift_Message();
         $message->setSubject($subject)
             ->setFrom(array('levik04122008@yandex.ru' => 'Mamonov Viktor'))
             ->setTo(array('masevius@rambler.ru' => 'A name'))
-            ->setBody($textMessage);
+            ->setBody($emailBody, "text/html");
 
 // Create the Transport
         $config = \Yii::$app->params;
@@ -23,6 +24,6 @@ class Mailer
         $mailer = new \Swift_Mailer($transport);
 
 // Send the message
-        $result = $mailer->send($message);
+        return ($mailer->send($message))? true : false;
     }
 }

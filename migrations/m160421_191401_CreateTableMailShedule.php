@@ -8,9 +8,12 @@ class m160421_191401_CreateTableMailShedule extends Migration
     {
         $this->createTable('MailShedule',
             [
-                'UserId' => $this->integer(),
+                'id' => $this->primaryKey(),
+                'userId' => $this->integer(),
                 'templates' => $this->string(),
-                'text' => $this->text()
+                'text' => $this->text(),
+                'email' => $this->string(),
+                'status' => $this->string(7)
             ]);
 
     }

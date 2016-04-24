@@ -10,19 +10,53 @@ class MailController extends Controller
 {
     protected function actionValidateEmail($email)
     {
-       return preg_match( "/^[a-z0-9_-]{1,20}@(([a-z0-9-]+\.)+(com|net|org|mil|".
-           "edu|gov|arpa|info|biz|inc|name|[a-z]{2})|[0-9]{1,3}\.[0-9]{1,3}\.[0-".
-           "9]{1,3}\.[0-9]{1,3})$/is", $email)? true : false;
+        $email = filter_var($email, FILTER_SANITIZE_EMAIL);
+        return filter_var($email, FILTER_VALIDATE_EMAIL);
 
+    }
+
+    public function beforeSend()
+    {
+        $forSend  = (new \yii\db\Query())
+            ->select(['email', 'templates', 'text'])
+            ->from('MailShedule')
+//            ->where(['id' => $data->userId])
+            ->where(['status' => 'waiting'])
+            ->all();
+
+        return $forSend;
     }
 
     public function  actionSend()
     {
-        echo $this->actionValidateEmail();
-        die;
+        $forSend = $this->beforeSend();
         $mail = new Mailer();
-        $mail->Send();
-//        return $this->render('mail');
+        $status = [];
+        foreach ($forSend as $sender) {
+            if (true == $this->actionValidateEmail($sender['email']) && $mail->Send($sender['templates'], $sender['text'])) {
+                $status[$sender['email']] = 'successfully';
+            } else {
+                $status[$sender['email']] = 'failure';
+            }
+        }
+        $this->afterSend($status);
+
     }
+
+    public function afterSend(array $status)
+    {
+        if (!empty($status)){
+            foreach($status as $email => $value){
+                \Yii::$app->db->createCommand()
+                    ->update('MailShedule', [
+                        'status' => $value,
+                    ],
+                        'email=:email',
+                        ['email' => $email ])
+                    ->execute();
+            }
+        }
+    }
+
 
 }

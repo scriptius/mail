@@ -1,2 +1,0 @@
-
-0-5 * * * * php yii mail/send' > cron.txt

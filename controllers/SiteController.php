@@ -96,16 +96,7 @@ class SiteController extends Controller
         $user->patronymic = 'Иванович';
         $user->email = 'test@example.com';
         echo($user->getFullName());
-//        $allProperty = get_object_vars(Yii::$app);
-//        var_dump($allProperty);
-//        die;
-//        foreach ($allProperty as $object){
-//            if (is_object($object)){
-//               var_dump( $this->getChainObjects($object));
-//            }
-//            else{
-//                echo 0;
-//            }
+
         }
 
 //        $model = new ContactForm();

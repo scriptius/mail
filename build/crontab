@@ -1,0 +1,2 @@
+
+*/5 * * * * php yii mail/send
