@@ -24,17 +24,31 @@ class MailController
                     'status' => 'waiting',
                     'email' => $shedule['email']
                 ])->execute();
+
+            return \Yii::$app->db->getLastInsertID();
         } else {
             throw new \Exception('User is not found in the database');
         }
+    }
+
+    public function actionStatus()
+    {
+        $data = json_decode($_POST['data']);
+        $result = (new \yii\db\Query())
+            ->select('status')
+            ->from('MailShedule')
+            ->where(['id' => $data->numberInStack])
+            ->one();
+        return $result['status'];
     }
 
     public function actionSend()
     {
         $data = json_decode($_POST['data']);
         try {
-            $this->addShedule($data);
+            $lastInsertId = $this->addShedule($data);
             \Yii::$app->response->statusCode = 200;
+            return $lastInsertId;
 
         } catch (\Exception $e) {
             return $e;
